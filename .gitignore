@@ -1,1 +1,30 @@
-Turine
+# ArchISO build output
+/work/
+/out/
+/tmp/
+/*.iso
+
+# mkarchiso common paths (people often use these)
+archiso/work/
+archiso/out/
+
+# Logs
+logs/
+*.log
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Python (future-proofing)
+__pycache__/
+*.pyc
+.venv/
+
+# Go (future-proofing)
+bin/
+*.exe
+*.out
