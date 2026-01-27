@@ -3,7 +3,7 @@ Description=Turine Hello World
 After=multi-user.target
 
 [Service]
-ExecStart=/usr/local/bin/hello
+ExecStart=/bin/sh /usr/local/bin/hello
 StandardOutput=tty
 TTYPath=/dev/tty1
 
