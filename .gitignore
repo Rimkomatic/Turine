@@ -1,30 +1,33 @@
-# ArchISO build output
-/work/
+# ===== ArchISO build artifacts =====
 /out/
-/tmp/
-/*.iso
+/work/
 
-# mkarchiso common paths (people often use these)
-archiso/work/
-archiso/out/
-
-# Logs
-logs/
+# ===== Logs =====
 *.log
+/logs/
 
-# Editor / OS noise
-.vscode/
-.idea/
+# ===== Temporary / editor files =====
 *.swp
 *.swo
+*.tmp
+*~
 .DS_Store
 
-# Python (future-proofing)
+# ===== Cache =====
+/.cache/
 __pycache__/
-*.pyc
-.venv/
 
-# Go (future-proofing)
-bin/
-*.exe
-*.out
+# ===== Generated ISOs (safety) =====
+*.iso
+*.iso.sig
+
+# ===== Mount points (if ever used) =====
+/mnt/
+/run/
+
+# ===== Environment / secrets =====
+.env
+.env.*
+
+# ===== Tooling noise =====
+node_modules/

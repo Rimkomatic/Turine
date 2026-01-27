@@ -1,0 +1,11 @@
+[Unit]
+Description=Turine Hello World
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/local/bin/hello
+StandardOutput=tty
+TTYPath=/dev/tty1
+
+[Install]
+WantedBy=multi-user.target
