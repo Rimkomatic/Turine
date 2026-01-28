@@ -1,3 +1,4 @@
 #!/bin/sh
+clear
+sh /root/banner.sh
 echo "HELLO FROM TURINE"
-sleep infinity

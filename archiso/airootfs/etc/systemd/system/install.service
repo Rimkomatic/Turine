@@ -1,0 +1,12 @@
+[Unit]
+Description=Install phase
+After=hello.service
+Requires=hello.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /usr/local/bin/install.sh
+StandardOutput=tty
+
+[Install]
+WantedBy=multi-user.target
