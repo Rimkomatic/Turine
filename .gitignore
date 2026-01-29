@@ -2,6 +2,8 @@
 /out/
 /work/
 
+*.qcow2
+
 # ===== Logs =====
 *.log
 /logs/
