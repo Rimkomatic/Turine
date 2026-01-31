@@ -16,6 +16,11 @@ bash "$STAGES_DIR/02-format.sh"
 log "Completed stage: 02-format.sh"
 bash "$STAGES_DIR/03-mount.sh"
 log "Completed stage: 03-mount.sh"
+bash "$STAGES_DIR/04-pacstrap.sh"
+log "Completed stage: 04-pacstrap.sh"
+bash "$STAGES_DIR/05-fstab.sh"
+log "Completed stage: 05-fstab.sh"
+bash "$STAGES_DIR/06-chroot.sh"
 
 
 # future
