@@ -11,44 +11,24 @@ read -rp "Enter username: " USERNAME
 while :; do
   read -rsp "Enter password for $USERNAME: " USER_PASSWORD; echo
   read -rsp "Confirm password: " CONFIRM; echo
-  [ "$USER_PASSWORD" = "$CONFIRM" ] && break
+  [[ "$USER_PASSWORD" == "$CONFIRM" ]] && break
   echo "Passwords do not match, try again"
 done
 
 while :; do
   read -rsp "Enter root password: " ROOT_PASSWORD; echo
   read -rsp "Confirm root password: " CONFIRM; echo
-  [ "$ROOT_PASSWORD" = "$CONFIRM" ] && break
+  [[ "$ROOT_PASSWORD" == "$CONFIRM" ]] && break
   echo "Passwords do not match, try again"
 done
 
 export USERNAME USER_PASSWORD ROOT_PASSWORD
 
 #--------------------------------------------------
-# Disk setup (assumes partitions already exist)
+# Derive ROOT_UUID automatically
 #--------------------------------------------------
-mkfs.fat -F32 "$EFI_PARTITION"
-mkfs."$ROOT_FS" "$ROOT_PARTITION"
+ROOT_UUID="$(blkid -s PARTUUID -o value "$ROOT_PARTITION")"
 
-mount "$ROOT_PARTITION" "$MOUNT_POINT"
-mount --mkdir "$EFI_PARTITION" "$MOUNT_POINT$EFI_MOUNT"
-
-ROOT_UUID=$(blkid -s PARTUUID -o value "$ROOT_PARTITION")
-export ROOT_UUID
-
-#--------------------------------------------------
-# Base install
-#--------------------------------------------------
-pacstrap -K "$MOUNT_POINT" \
-  $BASE_PACKAGES \
-  $EXTRA_PACKAGES \
-  sudo
-
-genfstab -U "$MOUNT_POINT" >> "$MOUNT_POINT/etc/fstab"
-
-#--------------------------------------------------
-# Chroot configuration
-#--------------------------------------------------
 arch-chroot "$MOUNT_POINT" /bin/bash <<EOF
 set -euo pipefail
 
@@ -69,12 +49,18 @@ HOSTS
 ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 hwclock --systohc
 
-sed -i "s/^#\\(${LOCALE}\\)/\\1/" /etc/locale.gen
+sed -i "s/^#\(${LOCALE}\)/\1/" /etc/locale.gen || true
 locale-gen
 
 echo "LANG=$LANG" > /etc/locale.conf
 echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 
+#--------------------------------------------------
+# sudo and Packages
+#--------------------------------------------------
+
+pacman -Sy --noconfirm sudo
+pacman -Sy --noconfirm $EXTRA_PACKAGES
 #--------------------------------------------------
 # Users
 #--------------------------------------------------
@@ -92,7 +78,7 @@ mkinitcpio -P
 #--------------------------------------------------
 # Bootloader
 #--------------------------------------------------
-if [ "$INSTALL_BOOTLOADER" = "yes" ] && [ "$BOOTLOADER" = "systemd-boot" ]; then
+if [[ "$INSTALL_BOOTLOADER" == "yes" && "$BOOTLOADER" == "systemd-boot" ]]; then
   bootctl install
 
   cat > /boot/loader/loader.conf <<LOADER
@@ -112,7 +98,7 @@ fi
 #--------------------------------------------------
 # Services
 #--------------------------------------------------
-if [ "$ENABLE_NETWORK" = "yes" ]; then
+if [[ "$ENABLE_NETWORK" == "yes" ]]; then
   systemctl enable NetworkManager
 fi
 
@@ -124,8 +110,3 @@ EOF
 unset USER_PASSWORD ROOT_PASSWORD
 
 echo "Installation complete."
-
-if [ "$REBOOT_AFTER_INSTALL" = "yes" ]; then
-  echo "Rebooting..."
-  reboot
-fi

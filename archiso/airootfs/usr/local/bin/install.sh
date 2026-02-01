@@ -19,14 +19,17 @@ log "Completed stage: 02-format.sh"
 bash "$STAGES_DIR/03-mount.sh"
 log "Completed stage: 03-mount.sh"
 
-# bash "$STAGES_DIR/031-network.sh"
-# log "Completed stage: 031-network.sh"
+bash "$STAGES_DIR/031-network.sh"
+log "Completed stage: 031-network.sh"
 
 bash "$STAGES_DIR/04-pacstrap.sh"
 log "Completed stage: 04-pacstrap.sh"
 
 bash "$STAGES_DIR/05-fstab.sh"
 log "Completed stage: 05-fstab.sh"
+
+
+echo "Completed stage: 05-fstab.sh"
 
 bash "$STAGES_DIR/06-chroot.sh"
 
