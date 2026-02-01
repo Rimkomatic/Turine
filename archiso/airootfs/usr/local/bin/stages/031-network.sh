@@ -3,45 +3,75 @@ set -euo pipefail
 
 . /usr/local/bin/lib/config.sh
 
-echo "Starting iwd..."
-systemctl start iwd
-sleep 5
+# --------------------------------------------------
+# Ask connection type
+# --------------------------------------------------
+echo
+echo "Select network type:"
+echo "1) Wi-Fi"
+echo "2) Ethernet"
+read -rp "Choice [1-2]: " NET_TYPE
+echo
 
 # --------------------------------------------------
-# Detect Wi-Fi device
+# Wi-Fi path (UNCHANGED)
 # --------------------------------------------------
-WIFI_DEV=$(iw dev | awk '$1=="Interface"{print $2; exit}')
+if [ "$NET_TYPE" = "1" ]; then
+  echo "Starting iwd..."
+  systemctl start iwd
+  sleep 5
 
-if [ -z "$WIFI_DEV" ]; then
-  echo "ERROR: No Wi-Fi device found."
-  exit 1
+  # --------------------------------------------------
+  # Detect Wi-Fi device
+  # --------------------------------------------------
+  WIFI_DEV=$(iw dev | awk '$1=="Interface"{print $2; exit}')
+
+  if [ -z "$WIFI_DEV" ]; then
+    echo "ERROR: No Wi-Fi device found."
+    exit 1
+  fi
+
+  echo "Using Wi-Fi device: $WIFI_DEV"
+
+  # Ensure powered
+  iwctl device "$WIFI_DEV" set-property Powered on
+
+  # --------------------------------------------------
+  # Scan + show networks
+  # --------------------------------------------------
+  echo
+  echo "Scanning Wi-Fi networks..."
+  iwctl station "$WIFI_DEV" scan
+  sleep 5
+  iwctl station "$WIFI_DEV" get-networks
+
+  # --------------------------------------------------
+  # Ask user
+  # --------------------------------------------------
+  echo
+  read -rp "Enter Wi-Fi SSID: " SSID
+  echo
+
+  # --------------------------------------------------
+  # Connect (iwd prompts internally)
+  # --------------------------------------------------
+  iwctl station "$WIFI_DEV" connect "$SSID"
 fi
 
-echo "Using Wi-Fi device: $WIFI_DEV"
+# --------------------------------------------------
+# Ethernet path
+# --------------------------------------------------
+if [ "$NET_TYPE" = "2" ]; then
+  ETH_DEV=$(ip -o link show | awk -F': ' '!/lo|wl/{print $2; exit}')
 
-# Ensure powered
-iwctl device "$WIFI_DEV" set-property Powered on
+  if [ -z "$ETH_DEV" ]; then
+    echo "ERROR: No Ethernet device found."
+    exit 1
+  fi
 
-# --------------------------------------------------
-# Scan + show networks
-# --------------------------------------------------
-echo
-echo "Scanning Wi-Fi networks..."
-iwctl station "$WIFI_DEV" scan
-sleep 5
-iwctl station "$WIFI_DEV" get-networks
-
-# --------------------------------------------------
-# Ask user
-# --------------------------------------------------
-echo
-read -rp "Enter Wi-Fi SSID: " SSID
-echo
-
-# --------------------------------------------------
-# Connect (iwd prompts internally)
-# --------------------------------------------------
-iwctl station "$WIFI_DEV" connect "$SSID"
+  echo "Using Ethernet device: $ETH_DEV"
+  ip link set "$ETH_DEV" up
+fi
 
 # --------------------------------------------------
 # Bring up networking (installer-safe)
@@ -76,4 +106,4 @@ ping -c 1 archlinux.org >/dev/null || {
   exit 1
 }
 
-echo "Wi-Fi connected successfully."
+echo "Network connected successfully."

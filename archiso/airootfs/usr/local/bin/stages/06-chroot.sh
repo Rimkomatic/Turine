@@ -29,6 +29,14 @@ export USERNAME USER_PASSWORD ROOT_PASSWORD
 #--------------------------------------------------
 ROOT_UUID="$(blkid -s PARTUUID -o value "$ROOT_PARTITION")"
 
+
+install -Dm755 \
+  /usr/local/bin/turine-setup/turine \
+  "$MOUNT_POINT/usr/local/bin/turine-setup/turine"
+
+#--------------------------------------------------
+# Enter chroot
+#--------------------------------------------------
 arch-chroot "$MOUNT_POINT" /bin/bash <<EOF
 set -euo pipefail
 
@@ -56,19 +64,25 @@ echo "LANG=$LANG" > /etc/locale.conf
 echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 
 #--------------------------------------------------
-# sudo and Packages
+# Packages
 #--------------------------------------------------
-
-pacman -Sy --noconfirm sudo
 pacman -Sy --noconfirm $EXTRA_PACKAGES
+
 #--------------------------------------------------
 # Users
 #--------------------------------------------------
 echo "root:$ROOT_PASSWORD" | chpasswd
+
 useradd -m -G wheel -s "$USER_SHELL" "$USERNAME"
 echo "$USERNAME:$USER_PASSWORD" | chpasswd
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+
+#--------------------------------------------------
+# Enable passwordless sudo (required)
+#--------------------------------------------------
+echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/99-wheel-nopasswd
+chmod 440 /etc/sudoers.d/99-wheel-nopasswd
 
 #--------------------------------------------------
 # Initramfs
@@ -76,7 +90,7 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 mkinitcpio -P
 
 #--------------------------------------------------
-# Bootloader
+# Bootloader (systemd-boot)
 #--------------------------------------------------
 if [[ "$INSTALL_BOOTLOADER" == "yes" && "$BOOTLOADER" == "systemd-boot" ]]; then
   bootctl install
@@ -88,7 +102,7 @@ editor no
 LOADER
 
   cat > /boot/loader/entries/arch.conf <<ENTRY
-title   Arch Linux
+title   arch
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
 options root=PARTUUID=$ROOT_UUID rw
@@ -96,17 +110,15 @@ ENTRY
 fi
 
 #--------------------------------------------------
-# Services
+# System services
 #--------------------------------------------------
 if [[ "$ENABLE_NETWORK" == "yes" ]]; then
   systemctl enable NetworkManager
 fi
 
+#--------------------------------------------------
+# Turine first-boot handoff (run with sudo)
+#--------------------------------------------------
+sudo -u "$USERNAME" </dev/tty >/dev/tty 2>&1 /usr/local/bin/turine-setup/turine
+
 EOF
-
-#--------------------------------------------------
-# Cleanup
-#--------------------------------------------------
-unset USER_PASSWORD ROOT_PASSWORD
-
-echo "Installation complete."
