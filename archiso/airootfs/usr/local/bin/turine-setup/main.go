@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 
+	"turine-setup/install"
 	"turine-setup/ui"
-	"turine-setup/util"
 )
 
 func banner() {
@@ -24,29 +23,83 @@ func main() {
 	ui.ClearScreen()
 	banner()
 
-	menu := [][]string{
-		{"Neovim", "#57A0D3"},
-		{"Git", "#F05033"},
-		{"HTop", "#00FF7F"},
+	if err := install.InstallYay(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
 	}
-
-	choice := ui.SelectMenu("Select an app to install:", menu)
 
 	ui.ClearScreen()
+	banner()
 
-	var err error
-	switch choice {
-	case 0:
-		err = util.PacmanInstall("neovim")
-	case 1:
-		err = util.PacmanInstall("git")
-	case 2:
-		err = util.PacmanInstall("htop")
+	if err := install.CpuDrivers(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
 	}
 
-	if err != nil {
-		log.Fatal(err)
+	ui.ClearScreen()
+	banner()
+
+	if err := install.GpuDrivers(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
 	}
+
+	ui.ClearScreen()
+	banner()
+	if err := install.ConfigAudio(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+
+	ui.ClearScreen()
+	banner()
+	if err := install.ConfigBluetooth(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+
+	ui.ClearScreen()
+	banner()
+
+	if err := install.ChooseProfile(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+
+	ui.ClearScreen()
+	banner()
+	if err := install.InstallGreeter(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+	ui.ClearScreen()
+	banner()
+
+	if err := install.ConfigFirewall(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+
+	ui.ClearScreen()
+	banner()
+
+	if err := install.InstallDotfiles(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+	
+	ui.ClearScreen()
+	banner()
+
 
 	fmt.Println("Installation complete.")
 }
