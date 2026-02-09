@@ -65,7 +65,7 @@ USER_SHELL="/bin/bash"
 #--------------------------------------------------
 
 BASE_PACKAGES="base linux linux-firmware"
-EXTRA_PACKAGES="vim git networkmanager go sudo"
+EXTRA_PACKAGES="vim zsh git networkmanager go sudo"
 
 #--------------------------------------------------
 # Bootloader

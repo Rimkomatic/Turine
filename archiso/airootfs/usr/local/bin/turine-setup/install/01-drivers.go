@@ -65,6 +65,13 @@ func GpuDrivers() error {
 		); err != nil {
 			return err
 		}
+		if err := util.PacmanInstallU(
+			"https://archive.archlinux.org/packages/g/gcc/gcc-14.2.1+r134+gab884fffe3fc-2-x86_64.pkg.tar.zst",
+			"https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-14.2.1+r134+gab884fffe3fc-2-x86_64.pkg.tar.zst",
+			"https://archive.archlinux.org/packages/b/binutils/binutils-2.42-1-x86_64.pkg.tar.zst",
+		); err != nil {
+			return err
+		}
 		return util.PacmanInstallU(
 			"https://archive.archlinux.org/packages/c/cuda/cuda-12.8.1-3-x86_64.pkg.tar.zst",
 			"https://archive.archlinux.org/packages/c/cuda-tools/cuda-tools-12.8.1-3-x86_64.pkg.tar.zst",

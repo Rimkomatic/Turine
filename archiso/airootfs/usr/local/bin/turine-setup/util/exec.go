@@ -14,6 +14,10 @@ func Run(cmd string, args ...string) error {
 	return c.Run()
 }
 
+func WhichPackage(pkg string)  error{
+	return Run("which", pkg)
+}
+
 func MakepkgInstall() error {
 	return Run("makepkg", "-si", "--noconfirm")
 }

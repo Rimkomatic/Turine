@@ -5,6 +5,7 @@ import (
 
 	"turine-setup/install"
 	"turine-setup/ui"
+	"turine-setup/util"
 )
 
 func banner() {
@@ -100,6 +101,11 @@ func main() {
 	ui.ClearScreen()
 	banner()
 
+	if err := util.WhichPackage("zsh"); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
 
 	fmt.Println("Installation complete.")
 }

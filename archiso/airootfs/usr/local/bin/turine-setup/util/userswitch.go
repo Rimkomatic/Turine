@@ -6,11 +6,15 @@ import (
 )
 
 func RunAsUser(cmd string, args ...string) error {
-	user := os.Getenv("SUDO_USER")
-	if user == "" {
-		return errors.New("SUDO_USER not set")
+	if sudoUser := os.Getenv("SUDO_USER"); sudoUser != "" {
+		fullArgs := append([]string{"-iu", sudoUser, cmd}, args...)
+		return Run("sudo", fullArgs...)
 	}
 
-	fullArgs := append([]string{"-iu", user, cmd}, args...)
-	return Run("sudo", fullArgs...)
+	if os.Geteuid() != 0 {
+		return Run(cmd, args...)
+	}
+
+	return errors.New("cannot determine non-root user context")
 }
+

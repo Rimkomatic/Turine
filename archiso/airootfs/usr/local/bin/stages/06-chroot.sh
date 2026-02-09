@@ -64,6 +64,16 @@ echo "LANG=$LANG" > /etc/locale.conf
 echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 
 #--------------------------------------------------
+# Pacman keyring (defensive, idempotent)
+#--------------------------------------------------
+if ! pacman-key --list-keys >/dev/null 2>&1; then
+  pacman-key --init
+  pacman-key --populate archlinux
+fi
+
+pacman -Syu --noconfirm archlinux-keyring
+
+#--------------------------------------------------
 # Packages
 #--------------------------------------------------
 pacman -Sy --noconfirm $EXTRA_PACKAGES
@@ -119,6 +129,9 @@ fi
 #--------------------------------------------------
 # Turine first-boot handoff (run with sudo)
 #--------------------------------------------------
+
+USER_SHELL="/usr/bin/zsh"
+
 sudo -u "$USERNAME" </dev/tty >/dev/tty 2>&1 /usr/local/bin/turine-setup/turine
 
 EOF
