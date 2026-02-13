@@ -97,7 +97,12 @@ func main() {
 		ui.Error(err.Error())
 		return
 	}
-	
+
+	if err := install.GetWalpapers(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
 	ui.ClearScreen()
 	banner()
 
@@ -107,5 +112,23 @@ func main() {
 		return
 	}
 
+	if err := util.FixSbinLayout(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+
+	if err := install.SetShell(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
+
 	fmt.Println("Installation complete.")
+
+	if err := util.ShutdownAfter5Seconds(); err != nil {
+		ui.Error("Installation failed")
+		ui.Error(err.Error())
+		return
+	}
 }

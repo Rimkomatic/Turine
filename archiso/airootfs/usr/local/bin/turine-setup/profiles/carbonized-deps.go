@@ -80,6 +80,7 @@ var CarbonizedDeps = []string{
 	"ttf-fira-code",
 	"ttf-fira-sans",
 	"ttf-firacode-nerd",
+	"thefuck",
 	"ufw",
 	"unzip",
 	"usbutils",
@@ -127,5 +128,7 @@ var CarbonizedDepsYay = []string{
 	"waypaper",
 	"wezterm-nightly-bin",
 	"ydotool-git",
+	"zinit",
+	"ttf-jetbrains-mono-nerd",
 }
 

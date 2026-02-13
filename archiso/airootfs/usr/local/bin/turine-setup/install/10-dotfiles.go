@@ -20,7 +20,7 @@ func InstallDotfiles()  error{
 		return err
 	}
 
-	if err := util.StowDotfiles("fastfetch hyprland matugen niri nvim rofi starship tmux waypaper wlogout yazi zathura zsh env-eventhorizon"); err != nil {
+	if err := util.StowDotfiles("fastfetch hyprland matugen niri nvim rofi starship tmux waypaper wlogout yazi zathura zsh env-cygni"); err != nil {
 		return err
 	}
 

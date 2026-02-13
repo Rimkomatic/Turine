@@ -43,11 +43,16 @@ parted -s "$DISK" set 1 esp on
 parted -s "$DISK" mkpart primary linux-swap 513MiB 8.5GiB
 parted -s "$DISK" mkpart primary ext4 8.5GiB 100%
 
-echo -e "\033[0;32mDisk partitioned and config updated.\033[0m"
+# Notify kernel of partition changes
+partprobe "$DISK"
+sleep 1
 
-EFI_PART="${DISK}1"
-SWAP_PART="${DISK}2"
-ROOT_PART="${DISK}3"
+# Detect real partition names (works for SATA, NVMe, etc.)
+mapfile -t PARTS < <(lsblk -ln -o NAME "$DISK" | tail -n +2)
+
+EFI_PART="/dev/${PARTS[0]}"
+SWAP_PART="/dev/${PARTS[1]}"
+ROOT_PART="/dev/${PARTS[2]}"
 
 EFI_SIZE="512M"
 SWAP_SIZE="8GiB"
